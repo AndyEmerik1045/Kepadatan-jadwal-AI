@@ -1,0 +1,6 @@
+numpy
+scipy
+scikit-fuzzy
+networkx
+
+# install dengan menjalankan --- pip install -r requirement.txt.
