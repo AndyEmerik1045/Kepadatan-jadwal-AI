@@ -5,7 +5,7 @@
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainers/features/node:1": {}
   },
-  "postCreateCommand": "curl -fsSL https://bun.sh/install | bash && export PATH=$PATH:$HOME/.bun/bin && pip install -r requirements.txt",
+  "postCreateCommand": "pip install --r requirements.txt --break-system-packages && curl -fsSL https://bun.sh/install | bash",
   "customizations": {
     "vscode": {
       "extensions": ["ms-python.python", "oven.bun-vscode"]
