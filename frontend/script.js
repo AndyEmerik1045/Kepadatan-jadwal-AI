@@ -1,65 +1,69 @@
-// frontend/script.js
-let myChart = null; // Variabel untuk menyimpan grafik agar bisa diupdate
+let myChart = null;
 
 async function save() {
     const name = document.getElementById('task').value;
     const dur = document.getElementById('dur').value;
     const date = document.getElementById('date').value;
 
-    if(!name || !dur || !date) return alert("Mohon lengkapi data!");
-
-    const data = {
-        name: name,
-        duration: Number(dur),
-        date: date
-    };
+    if (!name || !dur || !date) {
+        return alert("Lengkapi semua data!");
+    }
 
     try {
-        const response = await fetch('/add', { 
-            method: 'POST', 
+        const res = await fetch('/add', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data) 
+            body: JSON.stringify({ name, duration: Number(dur), date })
         });
 
-        if (response.ok) {
-            alert("Data Berhasil Disimpan!");
-            // Kosongkan form setelah simpan
-            document.getElementById('task').value = '';
-            document.getElementById('dur').value = '';
-            
-            // Perbarui statistik
-            loadStats();
-        }
+        const result = await res.json();
+
+        if (!res.ok) throw new Error(result.error);
+
+        alert("Berhasil disimpan!");
+        loadTasks();
+        loadStats();
+
     } catch (err) {
-        console.error("Gagal menyimpan:", err);
+        alert("Error: " + err.message);
     }
 }
 
+async function loadTasks() {
+    const res = await fetch('/tasks');
+    const data = await res.json();
+
+    const container = document.getElementById('taskList');
+    container.innerHTML = "";
+
+    data.forEach(t => {
+        const el = document.createElement("div");
+        el.innerText = `${t.name} (${t.duration} jam) - ${t.date}`;
+        container.appendChild(el);
+    });
+}
+
 async function loadStats() {
+    document.getElementById('status').innerText = "Loading...";
+    
     try {
         const res = await fetch('/stats');
         const final = await res.json();
-        
-        // 1. Update Teks & Skor
+
         document.getElementById('status').innerText = final.status;
         document.getElementById('score').innerText = final.score;
 
-        // 2. Logika Update Grafik (Agar tidak error bertumpuk)
         const ctx = document.getElementById('densityChart').getContext('2d');
-        
-        if (myChart) {
-            myChart.destroy(); // Hapus chart lama sebelum membuat yang baru
-        }
+
+        if (myChart) myChart.destroy();
 
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Kepadatan Saat Ini'], 
+                labels: ['Kepadatan'],
                 datasets: [{
-                    label: 'Skala 0-100',
                     data: [final.score],
-                    backgroundColor: final.score > 60 ? '#ff4d4d' : '#4a90e2',
-                    borderRadius: 8
+                    backgroundColor: final.score > 60 ? '#ff4d4d' : '#4a90e2'
                 }]
             },
             options: {
@@ -68,10 +72,13 @@ async function loadStats() {
                 }
             }
         });
-    } catch (err) {
-        console.error("Gagal memuat stats:", err);
+
+    } catch {
+        document.getElementById('status').innerText = "Error";
     }
 }
 
-// Jalankan loadStats saat halaman pertama kali dibuka
-window.onload = loadStats;
+window.onload = () => {
+    loadTasks();
+    loadStats();
+};
