@@ -5,7 +5,7 @@ const DB_FILE = join(import.meta.dir, "backend", "database.json");
 const PY_FILE = join(import.meta.dir, "backend", "fuzzy_engine.py");
 
 async function askAI(duration: number, count: number) {
-  const py = spawn(["python3", PY_FILE, JSON.stringify({ duration, count })]);
+  const py = spawn(["python", PY_FILE, JSON.stringify({ duration, count })]);
 
   // BACA SEKALI SAJA sebagai text
   const text = await new Response(py.stdout).text();
