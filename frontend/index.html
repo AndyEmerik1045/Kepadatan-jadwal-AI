@@ -1,37 +1,110 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Kepadatan Jadwal</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Schedule — Daily Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-    <div class="container">
-        <h2>Daily AI Schedule</h2>
-        <div class="form-group">
-            <input type="text" id="task" placeholder="Nama Kegiatan">
-            <input type="number" id="dur" placeholder="Durasi (Jam)">
-            <input type="date" id="date">
-            <button onclick="save()">Simpan Kegiatan</button>
-        </div>
 
-        <h3>Daftar Kegiatan</h3>
-        <div id="taskList"></div>
+  <div class="noise"></div>
 
-        <div id="result">
-            <h3>Status: <span id="status">-</span></h3>
-            <p>Skala Fuzzy: <span id="score">0</span>/100</p>
-        </div>
-
-        <div style="width: 100%; max-width: 400px; margin: auto;">
-            <canvas id="densityChart"></canvas>
-        </div>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        <span>AISCHEDULE</span>
+      </div>
+      <div class="header-meta">
+        <span id="today-label" class="today-label"></span>
+      </div>
     </div>
+  </header>
 
-    <script src="script.js"></script>
+  <main class="container">
+
+    <!-- LEFT PANEL -->
+    <section class="panel panel-left">
+      <div class="panel-label">01 — TAMBAH AGENDA</div>
+
+      <div class="form-group">
+        <label for="task">NAMA KEGIATAN</label>
+        <input id="task" type="text" placeholder="Contoh: Rapat Tim Alpha" autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dur">DURASI (JAM)</label>
+          <input id="dur" type="number" placeholder="1–8" min="1" max="8">
+        </div>
+        <div class="form-group">
+          <label for="date">TANGGAL</label>
+          <input id="date" type="date">
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="save()">
+        <span class="btn-text">SIMPAN AGENDA</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- STATS BOX -->
+      <div class="stats-box">
+        <div class="panel-label">02 — STATUS KEPADATAN</div>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-label">STATUS</div>
+            <div id="status" class="stat-value">—</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">SKOR FUZZY</div>
+            <div id="score" class="stat-value mono">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">TOTAL AGENDA</div>
+            <div id="total" class="stat-value mono">0</div>
+          </div>
+        </div>
+
+        <div class="density-bar-wrap">
+          <div class="density-bar-bg">
+            <div id="density-bar" class="density-bar-fill" style="width:0%"></div>
+          </div>
+          <div class="density-labels">
+            <span>Tidak Padat</span>
+            <span>Cukup</span>
+            <span>Sangat Padat</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section class="panel panel-right">
+      <div class="panel-label">03 — DAFTAR AGENDA</div>
+
+      <div id="taskList" class="task-list"></div>
+
+      <div class="panel-label chart-label">04 — GRAFIK MINGGUAN</div>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <span class="mono">Fuzzy Logic Engine · skfuzzy · Bun Runtime</span>
+    <span class="footer-dot"></span>
+    <span class="mono" id="clock"></span>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
-
 </html>
