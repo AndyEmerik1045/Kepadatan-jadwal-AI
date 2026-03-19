@@ -78,11 +78,12 @@ async function updateTask(id: number, input: TaskInput): Promise<Task | null> {
   const index = data.findIndex(t => t.id === id);
   if (index === -1) return null;
 
-  const existing = data[index]; // ✅ TS sekarang aman
-
+  const existing = data[index];
+  if (!existing) return null;
+  
   const updated: Task = {
-    id: existing.id,
-    ...input
+  id: existing.id,
+  ...input
   };
 
   data[index] = updated;
