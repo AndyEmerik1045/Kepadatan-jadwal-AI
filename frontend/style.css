@@ -10,8 +10,8 @@
   --border: rgba(255,255,255,0.07);
   --border-accent: rgba(255,255,255,0.15);
   --text: #e8e8f0;
-  --text-muted: #6b6b80;
-  --text-dim: #3a3a50;
+  --text-muted: #aaaaac;
+  --text-dim: #8c8c8c;
   --accent: #c8ff00;
   --accent-dim: rgba(200, 255, 0, 0.12);
   --accent-mid: rgba(200, 255, 0, 0.4);
@@ -398,6 +398,31 @@ footer > * {
   border-radius: 50%;
   display: inline-block;
 }
+
+textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  color-scheme: dark;
+  resize: vertical;
+  min-height: 42px;
+  line-height: 1.5;
+}
+
+textarea:focus {
+  border-color: var(--accent-mid);
+  background: rgba(200,255,0,0.04);
+}
+
+textarea::placeholder { color: var(--text-dim); font-weight: 400; }
 
 /* RESPONSIVE */
 @media (max-width: 860px) {

@@ -185,9 +185,9 @@ async function loadStats() {
 
     // Color coding
     statusEl.className = "stat-value";
-    if (score > 60)      statusEl.classList.add("dense-high"); //merah
-    else if (score > 30) statusEl.classList.add("dense-mid"); //kuning
-    else                 statusEl.classList.add("dense-low"); //hijau
+    if (score > 60)      statusEl.classList.add("dense-high");
+    else if (score > 30) statusEl.classList.add("dense-mid");
+    else                 statusEl.classList.add("dense-low");
 
     // Density bar
     densityBar.style.width = Math.min(score, 100) + "%";
@@ -206,20 +206,21 @@ async function loadStats() {
 // ================================================
 
 function buildWeeklyChart(tasks) {
-  // Last 7 days
+  // Hari ini + 6 hari ke depan
   const days   = [];
   const labels = [];
   const durations = [];
   const counts    = [];
 
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 0; i <= 6; i++) {
     const d = new Date();
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() + i);
     const key = d.toISOString().split("T")[0];
     const dayName = d.toLocaleDateString("id-ID", { weekday: "short" }).toUpperCase();
+    const dayNum  = d.getDate();
 
     days.push(key);
-    labels.push(dayName);
+    labels.push(`${dayName} ${dayNum}`);
 
     const dayTasks = tasks.filter(t => t.date === key);
     durations.push(dayTasks.reduce((s, t) => s + t.duration, 0));
@@ -244,14 +245,14 @@ function buildWeeklyChart(tasks) {
           label: "Total Jam",
           data: durations,
           backgroundColor: durations.map(d =>
-            d >= 10 ? "rgba(255,69,96,0.75)" :
-            d >= 6  ? "rgba(255,179,71,0.75)" :
-            "rgba(200,255,0,0.75)"
+            d >= 10 ? "rgba(220,38,38,0.7)" :
+            d >= 6  ? "rgba(217,119,6,0.7)" :
+            "rgba(22,163,74,0.7)"
           ),
           borderColor: durations.map(d =>
-            d >= 10 ? "#ff4560" :
-            d >= 6  ? "#ffb347" :
-            "#c8ff00"
+            d >= 10 ? "#dc2626" :
+            d >= 6  ? "#d97706" :
+            "#16a34a"
           ),
           borderWidth: 1,
           borderRadius: 3,
@@ -261,9 +262,9 @@ function buildWeeklyChart(tasks) {
           label: "Jumlah Agenda",
           data: counts,
           type: "line",
-          borderColor: "rgba(71,179,255,0.8)",
-          backgroundColor: "rgba(71,179,255,0.1)",
-          pointBackgroundColor: "#47b3ff",
+          borderColor: "rgba(37,99,235,0.8)",
+          backgroundColor: "rgba(37,99,235,0.08)",
+          pointBackgroundColor: "#2563eb",
           pointRadius: 4,
           borderWidth: 2,
           tension: 0.4,
@@ -280,18 +281,18 @@ function buildWeeklyChart(tasks) {
       plugins: {
         legend: {
           labels: {
-            color: "#6b6b80",
+            color: "#6b7280",
             font: { family: "'DM Mono', monospace", size: 10 },
             boxWidth: 10,
             boxHeight: 10
           }
         },
         tooltip: {
-          backgroundColor: "#1a1a25",
-          borderColor: "rgba(255,255,255,0.07)",
+          backgroundColor: "#ffffff",
+          borderColor: "rgba(0,0,0,0.08)",
           borderWidth: 1,
-          titleColor: "#e8e8f0",
-          bodyColor: "#6b6b80",
+          titleColor: "#111827",
+          bodyColor: "#6b7280",
           titleFont: { family: "'Syne', sans-serif", size: 11, weight: "700" },
           bodyFont: { family: "'DM Mono', monospace", size: 10 },
           callbacks: {
@@ -304,25 +305,25 @@ function buildWeeklyChart(tasks) {
       },
       scales: {
         x: {
-          grid: { color: "rgba(255,255,255,0.04)" },
+          grid: { color: "rgba(0,0,0,0.05)" },
           ticks: {
-            color: "#6b6b80",
+            color: "#6b7280",
             font: { family: "'DM Mono', monospace", size: 10 }
           },
-          border: { color: "rgba(255,255,255,0.07)" }
+          border: { color: "rgba(0,0,0,0.08)" }
         },
         y: {
-          grid: { color: "rgba(255,255,255,0.04)" },
+          grid: { color: "rgba(0,0,0,0.05)" },
           ticks: {
-            color: "#6b6b80",
+            color: "#6b7280",
             font: { family: "'DM Mono', monospace", size: 10 },
             stepSize: 2
           },
-          border: { color: "rgba(255,255,255,0.07)" },
+          border: { color: "rgba(0,0,0,0.08)" },
           title: {
             display: true,
             text: "JAM",
-            color: "#3a3a50",
+            color: "#9ca3af",
             font: { family: "'DM Mono', monospace", size: 9 }
           }
         },
@@ -330,15 +331,15 @@ function buildWeeklyChart(tasks) {
           position: "right",
           grid: { display: false },
           ticks: {
-            color: "#3a4a60",
+            color: "#9ca3af",
             font: { family: "'DM Mono', monospace", size: 10 },
             stepSize: 1
           },
-          border: { color: "rgba(255,255,255,0.04)" },
+          border: { color: "rgba(0,0,0,0.05)" },
           title: {
             display: true,
             text: "AGENDA",
-            color: "#3a3a50",
+            color: "#9ca3af",
             font: { family: "'DM Mono', monospace", size: 9 }
           }
         }
