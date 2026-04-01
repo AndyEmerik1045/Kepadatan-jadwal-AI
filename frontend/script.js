@@ -1,8 +1,5 @@
-// ================================================
-// AI SCHEDULE — script.js
-// ================================================
-
 let chart = null;
+let currentEditId = null; // Menyimpan ID agenda yang sedang diedit
 
 // ---- DOM REFS ----
 let taskInput, durInput, dateInput, taskList, statusEl, scoreEl, totalEl, densityBar, chartCanvas;
@@ -57,7 +54,7 @@ function showToast(msg, isError = false) {
 }
 
 // ================================================
-// SAVE TASK
+// SAVE TASK (POST)
 // ================================================
 
 async function save() {
@@ -94,16 +91,67 @@ async function save() {
   }
 }
 
-// Enter key support
+// Konteks Enter: Simpan baru vs Update Edit
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") save();
+  if (e.key === "Enter") {
+    const isModalOpen = !document.getElementById("editModal").classList.contains("hidden");
+    if (isModalOpen) {
+      submitEdit();
+    } else {
+      save();
+    }
+  }
 });
 
 // ================================================
-// DELETE TASK
+// EDIT TASK LOGIC (PUT)
+// ================================================
+
+function openEdit(id, name, duration, date) {
+  currentEditId = id;
+  document.getElementById("editTask").value = name;
+  document.getElementById("editDur").value = duration;
+  document.getElementById("editDate").value = date;
+  document.getElementById("editModal").classList.remove("hidden");
+}
+
+function closeEdit() {
+  currentEditId = null;
+  document.getElementById("editModal").classList.add("hidden");
+}
+
+async function submitEdit() {
+  const name = document.getElementById("editTask").value.trim();
+  const duration = Number(document.getElementById("editDur").value);
+  const date = document.getElementById("editDate").value;
+
+  if (!name || !duration || !date) return showToast("⚠ Data tidak boleh kosong.", true);
+
+  try {
+    const res = await fetch(`/tasks/${currentEditId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, duration, date })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Gagal update.");
+
+    showToast("✓ Agenda diperbarui.");
+    closeEdit();
+    await loadTasks();
+    await loadStats();
+  } catch (err) {
+    showToast("✗ " + err.message, true);
+  }
+}
+
+// ================================================
+// DELETE TASK (DELETE)
 // ================================================
 
 async function deleteTask(id) {
+  if (!confirm("Hapus agenda ini?")) return;
   try {
     const res = await fetch(`/tasks/${id}`, { method: "DELETE" });
     const result = await res.json();
@@ -118,7 +166,7 @@ async function deleteTask(id) {
 }
 
 // ================================================
-// LOAD TASK LIST
+// LOAD TASK LIST (GET)
 // ================================================
 
 async function loadTasks() {
@@ -134,9 +182,7 @@ async function loadTasks() {
       return;
     }
 
-    // Sort by date descending
     data.sort((a, b) => b.date.localeCompare(a.date));
-
     totalEl.textContent = data.length;
 
     data.forEach((t, i) => {
@@ -152,18 +198,20 @@ async function loadTasks() {
         <div class="task-name">${escapeHtml(t.name)}</div>
         <div class="task-meta">${t.duration}j</div>
         <div class="task-date">${formatDate(t.date)}</div>
-        <button class="task-delete" onclick="deleteTask(${t.id})" title="Hapus">✕</button>
+        <div class="task-actions">
+          <button class="task-edit" onclick="openEdit(${t.id}, '${escapeHtml(t.name)}', ${t.duration}, '${t.date}')" title="Edit">✎</button>
+          <button class="task-delete" onclick="deleteTask(${t.id})" title="Hapus">✕</button>
+        </div>
       `;
       taskList.appendChild(div);
     });
-
   } catch (err) {
     taskList.innerHTML = `<div class="task-empty">Gagal memuat agenda.</div>`;
   }
 }
 
 // ================================================
-// LOAD STATS + CHART
+// LOAD STATS + CHART (GET STATS)
 // ================================================
 
 async function loadStats() {
@@ -178,21 +226,16 @@ async function loadStats() {
 
     if (!statsRes.ok) throw new Error(stats.error);
 
-    // Update score
     const score = stats.score ?? 0;
     scoreEl.textContent = score.toFixed(1);
     statusEl.textContent = stats.status || "—";
 
-    // Color coding
     statusEl.className = "stat-value";
     if (score > 60)      statusEl.classList.add("dense-high");
     else if (score > 30) statusEl.classList.add("dense-mid");
     else                 statusEl.classList.add("dense-low");
 
-    // Density bar
     densityBar.style.width = Math.min(score, 100) + "%";
-
-    // Build weekly chart
     buildWeeklyChart(tasks || []);
 
   } catch (err) {
@@ -202,15 +245,14 @@ async function loadStats() {
 }
 
 // ================================================
-// WEEKLY CHART
+// WEEKLY CHART LOGIC
 // ================================================
 
 function buildWeeklyChart(tasks) {
-  // Hari ini + 6 hari ke depan
-  const days   = [];
+  const days = [];
   const labels = [];
   const durations = [];
-  const counts    = [];
+  const counts = [];
 
   for (let i = 0; i <= 6; i++) {
     const d = new Date();
@@ -230,12 +272,6 @@ function buildWeeklyChart(tasks) {
   if (chart) chart.destroy();
 
   const ctx = chartCanvas.getContext("2d");
-
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, 220);
-  grad.addColorStop(0, "rgba(200,255,0,0.35)");
-  grad.addColorStop(1, "rgba(200,255,0,0.02)");
-
   chart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -244,16 +280,8 @@ function buildWeeklyChart(tasks) {
         {
           label: "Total Jam",
           data: durations,
-          backgroundColor: durations.map(d =>
-            d >= 10 ? "rgba(220,38,38,0.7)" :
-            d >= 6  ? "rgba(217,119,6,0.7)" :
-            "rgba(22,163,74,0.7)"
-          ),
-          borderColor: durations.map(d =>
-            d >= 10 ? "#dc2626" :
-            d >= 6  ? "#d97706" :
-            "#16a34a"
-          ),
+          backgroundColor: durations.map(d => d >= 10 ? "#dc2626b3" : d >= 6 ? "#d97706b3" : "#16a34ab3"),
+          borderColor: durations.map(d => d >= 10 ? "#dc2626" : d >= 6 ? "#d97706" : "#16a34a"),
           borderWidth: 1,
           borderRadius: 3,
           order: 2
@@ -262,11 +290,10 @@ function buildWeeklyChart(tasks) {
           label: "Jumlah Agenda",
           data: counts,
           type: "line",
-          borderColor: "rgba(37,99,235,0.8)",
-          backgroundColor: "rgba(37,99,235,0.08)",
+          borderColor: "#2563ebcc",
+          backgroundColor: "#2563eb14",
           pointBackgroundColor: "#2563eb",
           pointRadius: 4,
-          borderWidth: 2,
           tension: 0.4,
           fill: true,
           yAxisID: "y2",
@@ -277,77 +304,16 @@ function buildWeeklyChart(tasks) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 600, easing: "easeOutQuart" },
       plugins: {
-        legend: {
-          labels: {
-            color: "#6b7280",
-            font: { family: "'DM Mono', monospace", size: 10 },
-            boxWidth: 10,
-            boxHeight: 10
-          }
-        },
-        tooltip: {
-          backgroundColor: "#ffffff",
-          borderColor: "rgba(0,0,0,0.08)",
-          borderWidth: 1,
-          titleColor: "#111827",
-          bodyColor: "#6b7280",
-          titleFont: { family: "'Syne', sans-serif", size: 11, weight: "700" },
-          bodyFont: { family: "'DM Mono', monospace", size: 10 },
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.dataset.label === "Total Jam") return ` ${ctx.raw} jam kerja`;
-              return ` ${ctx.raw} agenda`;
-            }
-          }
-        }
+        legend: { labels: { color: "#6b7280", font: { family: "'DM Mono'", size: 10 } } }
       },
       scales: {
-        x: {
-          grid: { color: "rgba(0,0,0,0.05)" },
-          ticks: {
-            color: "#6b7280",
-            font: { family: "'DM Mono', monospace", size: 10 }
-          },
-          border: { color: "rgba(0,0,0,0.08)" }
-        },
-        y: {
-          grid: { color: "rgba(0,0,0,0.05)" },
-          ticks: {
-            color: "#6b7280",
-            font: { family: "'DM Mono', monospace", size: 10 },
-            stepSize: 2
-          },
-          border: { color: "rgba(0,0,0,0.08)" },
-          title: {
-            display: true,
-            text: "JAM",
-            color: "#9ca3af",
-            font: { family: "'DM Mono', monospace", size: 9 }
-          }
-        },
-        y2: {
-          position: "right",
-          grid: { display: false },
-          ticks: {
-            color: "#9ca3af",
-            font: { family: "'DM Mono', monospace", size: 10 },
-            stepSize: 1
-          },
-          border: { color: "rgba(0,0,0,0.05)" },
-          title: {
-            display: true,
-            text: "AGENDA",
-            color: "#9ca3af",
-            font: { family: "'DM Mono', monospace", size: 9 }
-          }
-        }
+        x: { ticks: { color: "#6b7280", font: { family: "'DM Mono'", size: 10 } } },
+        y: { title: { display: true, text: "JAM", color: "#9ca3af", font: { size: 9 } } },
+        y2: { position: "right", title: { display: true, text: "AGENDA", color: "#9ca3af", font: { size: 9 } } }
       }
     }
   });
-
-  // Fix canvas height
   chartCanvas.parentElement.style.height = "220px";
 }
 
@@ -356,7 +322,8 @@ function buildWeeklyChart(tasks) {
 // ================================================
 
 function escapeHtml(str) {
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  if (typeof str !== 'string') return str;
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
 }
 
 function formatDate(dateStr) {

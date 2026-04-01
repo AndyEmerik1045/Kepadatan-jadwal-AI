@@ -9,17 +9,17 @@ def calculate_fuzzy(duration_val, count_val):
     count = ctrl.Antecedent(np.arange(0, 9, 1), 'count')
     density = ctrl.Consequent(np.arange(0, 101, 1), 'density')
 
-    duration['ringan'] = fuzz.trimf(duration.universe, [0, 0, 5])
+    duration['ringan'] = fuzz.trapmf(duration.universe, [0, 0, 3, 5])
     duration['sedang'] = fuzz.trimf(duration.universe, [3, 5, 8])
-    duration['berat']  = fuzz.trimf(duration.universe, [6, 12, 12])
+    duration['berat']  = fuzz.trapmf(duration.universe, [6, 8, 12, 12])
 
-    count['sedikit'] = fuzz.trimf(count.universe, [0, 0, 3])
+    count['sedikit'] = fuzz.trapmf(count.universe, [0, 0, 1, 3])
     count['cukup']   = fuzz.trimf(count.universe, [2, 4, 6])
-    count['banyak']  = fuzz.trimf(count.universe, [5, 8, 8])
+    count['banyak']  = fuzz.trapmf(count.universe, [5, 6, 8, 8])
 
-    density['tidak padat']  = fuzz.trimf(density.universe, [0, 0, 40])
+    density['tidak padat']  = fuzz.trapmf(density.universe, [0, 0, 20, 40])
     density['cukup padat']  = fuzz.trimf(density.universe, [30, 50, 70])
-    density['sangat padat'] = fuzz.trimf(density.universe, [60, 100, 100])
+    density['sangat padat'] = fuzz.trapmf(density.universe, [60, 80, 100, 100])
 
     rule1 = ctrl.Rule(duration['ringan'] & count['sedikit'], density['tidak padat'])
     rule2 = ctrl.Rule(duration['ringan'] & count['cukup'],   density['tidak padat'])
