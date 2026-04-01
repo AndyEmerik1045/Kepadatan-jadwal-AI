@@ -31,9 +31,9 @@
     <section class="panel panel-left">
       <div class="panel-label">01 — TAMBAH AGENDA</div>
 
-       <div class="form-group">
+      <div class="form-group">
         <label for="task">NAMA KEGIATAN</label>
-        <textarea id="task" placeholder="Contoh: Rapat Tim Alpha" autocomplete="off" rows="2"></textarea>
+        <textarea id="task" placeholder="Contoh: Rapat Tim Alpha" autocomplete="off" rows="3"></textarea>
       </div>
 
       <div class="form-row">
@@ -41,7 +41,6 @@
           <label for="dur">DURASI (JAM)</label>
           <input id="dur" type="number" placeholder="1–8" min="1" max="8">
         </div>
-        
         <div class="form-group">
           <label for="date">TANGGAL</label>
           <input id="date" type="date">
@@ -64,7 +63,7 @@
             <div id="status" class="stat-value">—</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">SKOR FUZZY</div>
+            <div class="stat-label">TINGKAT KEPADATAN</div>
             <div id="score" class="stat-value mono">0</div>
           </div>
           <div class="stat-item">
@@ -76,11 +75,6 @@
         <div class="density-bar-wrap">
           <div class="density-bar-bg">
             <div id="density-bar" class="density-bar-fill" style="width:0%"></div>
-          </div>
-          <div class="density-labels">
-            <span>Tidak Padat</span>
-            <span>Cukup</span>
-            <span>Sangat Padat</span>
           </div>
         </div>
       </div>
@@ -100,11 +94,33 @@
 
   </main>
 
-  <footer>
-    <span class="mono">Fuzzy Logic Engine · skfuzzy · Bun Runtime</span>
-    <span class="footer-dot"></span>
-    <span class="mono" id="clock"></span>
-  </footer>
+  <!-- EDIT MODAL -->
+  <div id="editModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="panel-label" style="border:none;padding:0;margin:0;">EDIT AGENDA</span>
+        <button class="modal-close" onclick="closeEdit()">✕</button>
+      </div>
+      <div class="form-group">
+        <label for="editTask">NAMA KEGIATAN</label>
+        <textarea id="editTask" rows="2" autocomplete="off"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editDur">DURASI (JAM)</label>
+          <input id="editDur" type="number" min="1" max="8" placeholder="1–8">
+        </div>
+        <div class="form-group">
+          <label for="editDate">TANGGAL</label>
+          <input id="editDate" type="date">
+        </div>
+      </div>
+      <button class="btn-save" onclick="submitEdit()">
+        <span class="btn-text">SIMPAN PERUBAHAN</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
