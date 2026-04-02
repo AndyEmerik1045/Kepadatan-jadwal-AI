@@ -128,7 +128,7 @@ async function getFuzzyStats(data: Task[]) {
 
   const status =
     result.score > 60 ? "Sangat Padat" :
-    result.score > 30 ? "Padat Sedang" :
+    result.score > 30 ? "Cukup Padat" :
                         "Tidak Padat";
 
   return { score: result.score, status };
