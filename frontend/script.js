@@ -5,14 +5,14 @@ let currentEditId = null; // Menyimpan ID agenda yang sedang diedit
 let taskInput, durInput, dateInput, taskList, statusEl, scoreEl, totalEl, densityBar, chartCanvas;
 
 window.onload = () => {
-  taskInput   = document.getElementById("task");
-  durInput    = document.getElementById("dur");
-  dateInput   = document.getElementById("date");
-  taskList    = document.getElementById("taskList");
-  statusEl    = document.getElementById("status");
-  scoreEl     = document.getElementById("score");
-  totalEl     = document.getElementById("total");
-  densityBar  = document.getElementById("density-bar");
+  taskInput = document.getElementById("task");
+  durInput = document.getElementById("dur");
+  dateInput = document.getElementById("date");
+  taskList = document.getElementById("taskList");
+  statusEl = document.getElementById("status");
+  scoreEl = document.getElementById("score");
+  totalEl = document.getElementById("total");
+  densityBar = document.getElementById("density-bar");
   chartCanvas = document.getElementById("chart");
 
   // Set default date to today
@@ -58,9 +58,9 @@ function showToast(msg, isError = false) {
 // ================================================
 
 async function save() {
-  const name     = taskInput.value.trim();
+  const name = taskInput.value.trim();
   const duration = Number(durInput.value);
-  const date     = dateInput.value;
+  const date = dateInput.value;
 
   if (!name || !duration || !date) {
     return showToast("⚠ Lengkapi semua field terlebih dahulu.", true);
@@ -81,7 +81,7 @@ async function save() {
     if (!res.ok) throw new Error(result.error || "Gagal menyimpan.");
 
     taskInput.value = "";
-    durInput.value  = "";
+    durInput.value = "";
 
     showToast("✓ Agenda berhasil ditambahkan.");
     await loadTasks();
@@ -171,7 +171,7 @@ async function deleteTask(id) {
 
 async function loadTasks() {
   try {
-    const res  = await fetch("/tasks");
+    const res = await fetch("/tasks");
     const data = await res.json();
 
     taskList.innerHTML = "";
@@ -191,7 +191,7 @@ async function loadTasks() {
       div.style.animationDelay = `${i * 0.04}s`;
 
       const durColor = t.duration >= 6 ? "var(--danger)" :
-                       t.duration >= 4 ? "var(--warm)" : "var(--accent)";
+        t.duration >= 4 ? "var(--warm)" : "var(--accent)";
 
       div.innerHTML = `
         <div class="task-dot" style="background:${durColor}"></div>
@@ -224,6 +224,12 @@ async function loadStats() {
     const stats = await statsRes.json();
     const tasks = await tasksRes.json();
 
+    if (stats.score > 80) {
+      alert("⚠️ PERINGATAN: Jadwal Anda sudah sangat over-capacity! Pertimbangkan untuk delegasi tugas.");
+    } else if (stats.score > 60) {
+      console.log("Notifikasi: Hari Anda cukup sibuk.");
+    }
+
     if (!statsRes.ok) throw new Error(stats.error);
 
     const score = stats.score ?? 0;
@@ -231,9 +237,9 @@ async function loadStats() {
     statusEl.textContent = stats.status || "—";
 
     statusEl.className = "stat-value";
-    if (score > 60)      statusEl.classList.add("dense-high");
+    if (score > 60) statusEl.classList.add("dense-high");
     else if (score > 30) statusEl.classList.add("dense-mid");
-    else                 statusEl.classList.add("dense-low");
+    else statusEl.classList.add("dense-low");
 
     densityBar.style.width = Math.min(score, 100) + "%";
     buildWeeklyChart(tasks || []);
@@ -259,7 +265,7 @@ function buildWeeklyChart(tasks) {
     d.setDate(d.getDate() + i);
     const key = d.toISOString().split("T")[0];
     const dayName = d.toLocaleDateString("id-ID", { weekday: "short" }).toUpperCase();
-    const dayNum  = d.getDate();
+    const dayNum = d.getDate();
 
     days.push(key);
     labels.push(`${dayName} ${dayNum}`);
@@ -323,7 +329,7 @@ function buildWeeklyChart(tasks) {
 
 function escapeHtml(str) {
   if (typeof str !== 'string') return str;
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function formatDate(dateStr) {

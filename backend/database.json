@@ -1,26 +1,14 @@
 [
   {
-    "id": 1775018993382,
-    "name": "Rapat Tim Internal",
-    "duration": 3,
-    "date": "2026-04-01"
-  },
-  {
-    "id": 1775019078929,
-    "name": "inoinidfn",
-    "duration": 5,
-    "date": "2026-04-01"
-  },
-  {
-    "id": 1775019092290,
-    "name": "nefn",
+    "id": 1775042057315,
+    "name": "Rapat Tim MasukPakEko",
     "duration": 2,
-    "date": "2026-04-06"
+    "date": "2026-04-01"
   },
   {
-    "id": 1775020337166,
-    "name": "sdnvsnd",
-    "duration": 5,
+    "id": 1775042146198,
+    "name": "Belajar Bahasa Pemrograman C",
+    "duration": 8,
     "date": "2026-04-03"
   }
 ]
